@@ -1,0 +1,14 @@
+= scanny
+
+An exercise to practice scanning for speed reading.
+
+Inspired by: http://www.youtube.com/watch?v=5Nf4ObSlejQ
+
+= Demo
+
+This code is live at: http://scanny.acidfog.com/
+
+= License
+
+Copyright (c) 2010 Jonathan Palardy. See LICENSE for details.
+
