@@ -1,73 +1,97 @@
 
-var box = {};
-
-var make_region = function(x1, y1, x2, y2) {
-  return {"x1": x1, "y1": y1, "x2": x2, "y2": y2};
+if (typeof Object.create !== 'function') {
+  Object.create = function (o) {
+    function F() {}
+    F.prototype = o;
+    return new F();
+  };
 }
 
-var get_region = function(elem) {
-  var offset = $(elem).offset();
-  return make_region(offset.left, offset.top, offset.left + $(elem).width(), offset.top + $(elem).height());
-}
+//############################################################
 
-var overlap_xy_region = function(x, y, region) {
-  return (x >= region.x1 && x <= region.x2) &&
-         (y >= region.y1 && y <= region.y2);
-}
-
-var overlap = function(region1, region2) {
-  var result = overlap_xy_region(region1.x1, region1.y1, region2) ||
-               overlap_xy_region(region1.x2, region1.y1, region2) ||
-               overlap_xy_region(region1.x1, region1.y2, region2) ||
-               overlap_xy_region(region1.x2, region1.y2, region2) ||
-               overlap_xy_region(region2.x1, region2.y1, region1) ||
-               overlap_xy_region(region2.x2, region2.y1, region1) ||
-               overlap_xy_region(region2.x1, region2.y2, region1) ||
-               overlap_xy_region(region2.x2, region2.y2, region1);
-
-  return result;
-};
-
-var overlap_iter = function(region, regions) {
-  for(var i=0; i<regions.length; i++) {
-    if(overlap(region, regions[i])) return true;
+var geom = (function() {
+  var point = function(x, y) {
+    return {"x": x,
+            "y": y};
   };
 
-  return false;
-}
+  var region = (function() {
+    var result = {
+      "contains": function(p) {
+        return (p.x >= this.topLeft.x && p.x <= this.bottomRight.x) &&
+               (p.y >= this.topLeft.y && p.y <= this.bottomRight.y);
+      },
+      "overlaps": function(r) {
+        return this.contains(r.topLeft)     ||
+               this.contains(r.topRight)    ||
+               this.contains(r.bottomLeft)  ||
+               this.contains(r.bottomRight) ||
+               r.contains(this.topLeft)     ||
+               r.contains(this.topRight)    ||
+               r.contains(this.bottomLeft)  ||
+               r.contains(this.bottomRight);
+      }
+    };
 
-var moveto = function(elem, x, y, duration) {
-  $(elem).animate({"left": x + "px",
-                   "top":  y + "px"}, duration);
-};
+    return function(p1, p2) {
+      result             = Object.create(result);
+      result.topLeft     = p1;
+      result.topRight    = point(p2.x, p1.y);
+      result.bottomLeft  = point(p1.x, p2.y);
+      result.bottomRight = p2;
 
-var shuffle = function() {
+      return result;
+    };
+  })();
+
+  return {"point": point,
+          "region": region};
+})();
+
+//############################################################
+
+var shuffle = function(sel, move_f) {
+  sel = $(sel);
+
+  move_f = move_f || function(elem, x, y, duration) {
+    $(elem).animate({"left": x + "px",
+                     "top":  y + "px"}, duration);
+  };
+
+  var overlap_iter = function(region, regions) {
+    var i;
+    var l = regions.length;
+
+    for(i=0; i<l; i++) {
+      if(region.overlaps(regions[i])) { return true; }
+    }
+
+    return false;
+  };
+
+  var box = {"width": sel.width(), "height": sel.height()};
   var regions = [];
-
-  $('.scanny .item').each(function(i, elem) {
-    var w = $(elem).width();
-    var h = $(elem).height();
-
+  sel.find('.item').each(function(i, elem) {
+    elem = $(elem);
     var x, y, region;
+    var w = elem.width();
+    var h = elem.height();
+
     do {
       x = Math.floor(Math.random()*(box.width - w));
       y = Math.floor(Math.random()*(box.height - h));
-      region = make_region(x, y, x+w, y+h);
+      region = geom.region(geom.point(x, y), geom.point(x+w, y+h));
     } while(overlap_iter(region, regions));
 
     regions.push(region);
-    moveto(elem, region.x1, region.y1, 1000);
+    move_f(elem, region.topLeft.x, region.topLeft.y, 1000);
   });
-}
+};
 
 $(document).ready(function() {
-  var target = $('.scanny')
-  box.width = target.width();
-  box.height = target.height();
-
-  shuffle();
+  shuffle('.scanny');
 
   $('button').click(function() {
-    shuffle();
+    shuffle('.scanny');
   });
 });
