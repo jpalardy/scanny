@@ -1,12 +1,18 @@
-= scanny
+= Scanny
 
-An exercise to practice scanning for speed reading.
+A speed reading exercise to practice scanning.
 
 Inspired by: http://www.youtube.com/watch?v=5Nf4ObSlejQ
 
+= Instructions
+
+Scan the numbers, in order, from 1 to 20. The faster you can do it, the better.
+
+Practice makes perfect.
+
 = Demo
 
-This code is live at: http://scanny.acidfog.com/
+This code is live at: http://scanny.acidfog.com.
 
 = License
 
