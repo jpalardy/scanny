@@ -12,9 +12,9 @@ Practice makes perfect.
 
 = Demo
 
-This code is live at: http://scanny.acidfog.com.
+This code is live at: http://scanny.jpalardy.com.
 
 = License
 
-Copyright (c) 2010 Jonathan Palardy. See LICENSE for details.
+Copyright (c) 2011 Jonathan Palardy. See LICENSE for details.
 
